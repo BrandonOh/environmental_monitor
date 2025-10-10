@@ -1,5 +1,5 @@
 const API_BASE = process.env.NODE_ENV === 'production'
-? '/api'
+? '/environmental-monitor/api'
 : 'http://localhost:8000/api';
 
 export const fetchCities = async () => {
