@@ -2,7 +2,8 @@ import requests
 from django.core.management.base import BaseCommand
 from environmental_monitor.models import City, AirQualityReading, WeatherReading
 from django.conf import settings
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
+from django.utils import timezone
 from zoneinfo import ZoneInfo
 
 class Command(BaseCommand):
