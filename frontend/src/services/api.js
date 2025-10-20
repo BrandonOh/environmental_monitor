@@ -1,6 +1,4 @@
-const API_BASE = process.env.NODE_ENV === 'production'
-? '/environmental-monitor/api'
-: 'http://localhost:8000/api';
+const API_BASE = '/environmental-monitor/api'
 
 export const fetchCities = async () => {
     try {
@@ -35,7 +33,7 @@ export const fetchCityCurrentReadings = async (cityId) => {
     }
 };
 
-export const fetchCityHistoricalReading = async (cityId, days = 7) => {
+export const fetchCityHistoricalReadings = async (cityId, days = 7) => {
     try {
         const response = await fetch(`${API_BASE}/cities/${cityId}/readings/?days=${days}`);
         if (!response.ok) throw new Error('Failed to fetch historical readings');

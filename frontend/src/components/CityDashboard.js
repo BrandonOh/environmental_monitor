@@ -1,29 +1,40 @@
 import React, { useState, useEffect } from "react";
-import { fetchCityCurrentReadings } from "../services/api";
+import { fetchCityCurrentReadings, fetchCityHistoricalReadings } from "../services/api";
 import { getAQIColor, formatDate, formatTemperature } from "../utils/helpers";
+import CityCharts from "./CityCharts";
 
 function CityDashboard ({ city, onBack }){
     const [data, setData] = useState(null);
+    const [historicalData, setHistoricalData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [tempUnit, setTempUnit] = useState('F');
 
     useEffect(() => {
+        const loadCityData = async () => {
+            try {
+                setLoading(true);
+                const [ currentResponse, historicalResponse] = await Promise.all([
+                    fetchCityCurrentReadings(city.id),
+                    fetchCityHistoricalReadings(city.id, 7)
+                ]);
+                setData(currentResponse);
+                setHistoricalData(historicalResponse);
+
+                console.log("Historical Data", historicalResponse)
+                console.log("Air Readings", historicalResponse.air_quality_readings)
+                console.log("Weather Reading", historicalResponse.weather_readings)
+
+                setError(null);
+            } catch (err) {
+                setError('Failed to load city data');
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
         loadCityData();
     }, [city.id]);
-
-    const loadCityData = async () => {
-        try {
-            setLoading(true);
-            const response = await fetchCityCurrentReadings(city.id);
-            setData(response);
-            setError(null);
-        } catch (err) {
-            setError('Failed to load city data');
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     if (loading) {
         return (
@@ -52,12 +63,30 @@ function CityDashboard ({ city, onBack }){
         <div className = "container">
             <div className = "card shadow-lg mb-4">
                 <div className = "card-body">
-                    <button
-                        onClick = {onBack}
-                        className = "btn btn-link text-decoration-none p-0 mb-3"
+                    <div>
+                        <button
+                            onClick = {onBack}
+                            className = "btn btn-link text-decoration-none p-0 mb-3"
                         >
                             Back to Cities
-                    </button>
+                        </button>
+                    </div>
+                    <div className = "btn-group" role = "group">
+                        <button
+                            type = "button"
+                            className = {`btn btn-sm ${tempUnit === 'C' ? 'btn-primary' : 'btn-outline-primary'}`}
+                            onClick = {() => setTempUnit('C')}
+                        >
+                            °C
+                        </button>
+                        <button
+                            type = "button"
+                            className = {`btn btn-sm ${tempUnit === 'F' ? 'btn-primary' : 'btn-outline-primary'}`}
+                            onClick = {() => setTempUnit('F')}
+                        >
+                            °F
+                        </button>
+                    </div>
                     <h1 className = "display-5 fw-bold mb-2">
                         {city.name}, {city.country}
                     </h1>
@@ -191,11 +220,11 @@ function CityDashboard ({ city, onBack }){
                                     <div className ="card-body">
                                         <div className = "small text-muted">Temperature</div>
                                         <div className = "h3 fw-semibold mb-0">
-                                            {formatTemperature(weather.temperature)}
+                                            {formatTemperature(weather.temperature, tempUnit)}
                                         </div>
                                         {weather.feels_like && (
                                             <div className = "small text-muted">
-                                                Feels like {formatTemperature(weather.feels_like)}
+                                                Feels like {formatTemperature(weather.feels_like, tempUnit)}
                                             </div>
                                         )}
                                     </div>
@@ -252,6 +281,17 @@ function CityDashboard ({ city, onBack }){
                     <p className = "mb-0">Add readings via Django admin to see data here.</p>
                 </div>
             )}
+
+            { historicalData &&
+              historicalData.air_quality_readings?.length > 0 &&
+              historicalData.weather_readings?.length > 0 && (
+                <CityCharts
+                    airReadings = {historicalData.air_quality_readings}
+                    weatherReadings = {historicalData.weather_readings}
+                    tempUnit = {tempUnit}
+                />
+              )    
+            }
         </div>
     );
 }        
