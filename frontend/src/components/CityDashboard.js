@@ -74,17 +74,17 @@ function CityDashboard ({ city, onBack }){
                     <div className = "btn-group" role = "group">
                         <button
                             type = "button"
-                            className = {`btn btn-sm ${tempUnit === 'C' ? 'btn-primary' : 'btn-outline-primary'}`}
-                            onClick = {() => setTempUnit('C')}
-                        >
-                            °C
-                        </button>
-                        <button
-                            type = "button"
                             className = {`btn btn-sm ${tempUnit === 'F' ? 'btn-primary' : 'btn-outline-primary'}`}
                             onClick = {() => setTempUnit('F')}
                         >
                             °F
+                        </button>
+                        <button
+                            type = "button"
+                            className = {`btn btn-sm ${tempUnit === 'C' ? 'btn-primary' : 'btn-outline-primary'}`}
+                            onClick = {() => setTempUnit('C')}
+                        >
+                            °C
                         </button>
                     </div>
                     <h1 className = "display-5 fw-bold mb-2">
